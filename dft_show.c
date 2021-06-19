@@ -70,7 +70,7 @@ void clean_board()
 {
 	/*
 	 * Clean and positionate the pointer
-	 * to the begin of the terminal
+	 * at the beginning of the terminal
 	 */
 	printf("\033[2J\033[1;1H");
 }
