@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
 		show_board();
 	}
 	clean_board();
-	if((ret = fclose(file_audio) != 0)){
+	if((ret = fclose(file_audio)) != 0){
 		perror("close() error: ");
 		return OPEN_CLOSE_FAILED;
 	}	
