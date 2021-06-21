@@ -16,6 +16,7 @@ clean:
 
 install: 
 	cp $(PROG) $(PREFIX)/bin
+	chmod 755 $(PREFIX)/bin/$(PROG)
 
 uninstall:
 	rm $(PREFIX)/bin/$(PROG)
