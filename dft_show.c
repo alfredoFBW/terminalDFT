@@ -128,6 +128,7 @@ void show_board()
 		
 	}
 	printf("[KHz]\n");
+	printf("\n Terminal DFT. Alfredo Gonzalez Calvin (Ctrl + C to quit)\n");
 }
 
 
