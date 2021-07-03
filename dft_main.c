@@ -28,11 +28,11 @@
 #include "dft_calc.h"
 #include "dft_show.h"
 
-#define OPEN_CLOSE_FAILED 1
-#define DFT_FAILED 2
-#define EXEC_FAILED 3
-#define SIGNAL_FAILED 4
-#define RM_FAILED 5
+#define OPEN_CLOSE_FAILED -1
+#define DFT_FAILED -2
+#define EXEC_FAILED -3
+#define SIGNAL_FAILED -4
+#define RM_FAILED -5
 
 #define AUDIOFILE_PATH "./audiofile"
 #define AUDIOPROG_PATH "/usr/bin/arecord"
