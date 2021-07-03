@@ -20,7 +20,7 @@
 
 #include "dft_calc.h"
 
-#define MALLOC_FAILS 1
+#define MALLOC_FAILS -2
 
 double complex W_N[FFT_SIZE/2];
 double complex W_N2[FFT_SIZE/2][FFT_SIZE/2];
