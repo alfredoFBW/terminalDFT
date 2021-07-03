@@ -29,7 +29,8 @@
 /* 
  * Complex vector and complex matrix used
  * to compute the DFT using the base 2 
- * decimation algorithm
+ * decimation algorithm (The simplest one
+ * was enough )
  */
 extern double complex W_N[FFT_SIZE/2];
 extern double complex W_N2[FFT_SIZE/2][FFT_SIZE/2];
