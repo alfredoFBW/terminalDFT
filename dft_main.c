@@ -31,8 +31,9 @@
 #define OPEN_CLOSE_FAILED -1
 #define DFT_FAILED -2
 #define EXEC_FAILED 3
-#define SIGNAL_FAILED -4
-#define RM_FAILED -5
+#define CHILD_FAILED 4
+#define SIGNAL_FAILED -5
+#define RM_FAILED -6
 
 #define AUDIOFILE_PATH "./audiofile"
 #define AUDIOPROG_PATH "/usr/bin/arecord"
@@ -75,11 +76,11 @@ int main(int argc, char *argv[])
 	sigemptyset(&sa_int.sa_mask);  sigemptyset(&sa_term.sa_mask);
 	sa_term.sa_flags = 0;	       sa_term.sa_flags = 0;
 	if((ret = sigaction(SIGINT, &sa_int, 0)) == -1){
-		perror("sigaction failed() ");
+		perror("sigaction failed(): ");
 		return SIGNAL_FAILED;
 	}
 	if((ret = sigaction(SIGTERM, &sa_term, 0)) == -1){
-		perror("sigaction failed() ");
+		perror("sigaction failed(): ");
 		return SIGNAL_FAILED;
 	}
 
@@ -89,17 +90,27 @@ int main(int argc, char *argv[])
 		if(pid_record == 0){ 		/* Child */
 			ret = execv(AUDIOPROG_PATH, audio_command);
 			if(ret == -1){
-				perror("exec() error ");
+				perror("exec() error: ");
 				exit(EXEC_FAILED);	/* Exit child on error */
 			}
 		}	
 		else{		     		/* Parent */
 			wait(&ret);
-			child_status = WEXITSTATUS(ret);
-			if(child_status == (0377 & EXEC_FAILED)){ /* see man 3 exit */
-				fprintf(stderr, "child error\n");
+
+			if(WIFEXITED(ret) != 0)
+				child_status = WEXITSTATUS(ret); /* Get child ret val*/
+			else
+				child_status = -1;
+
+			if(child_status == (0377 & EXEC_FAILED)){ /*man 3 exit*/
+				fprintf(stderr, "Check your rec program\n");
 				return -EXEC_FAILED;
 			}
+			else if(child_status == -1){
+				fprintf(stderr, "child failed \n");
+				return -CHILD_FAILED;
+			}
+
 			/* Child closes it when he finishes recording */
 			freopen(AUDIOFILE_PATH, "r", file_audio);
 			for(k = 0; k < FFT_SIZE; k++)
@@ -117,12 +128,12 @@ int main(int argc, char *argv[])
 	}
 	clean_board();
 	if((ret = fclose(file_audio)) != 0){
-		perror("close() error ");
+		perror("close() error: ");
 		return OPEN_CLOSE_FAILED;
 	}	
 	/* Remove audio file */
 	if((ret = remove(AUDIOFILE_PATH)) == -1){
-		perror("remove() file error ");
+		perror("remove() file error: ");
 		return RM_FAILED;
 	}
 	free(audio_rounded);
