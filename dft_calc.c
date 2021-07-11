@@ -53,8 +53,7 @@ int dft(int *x_even, int *x_odd, double *Y)
 {
 	double complex *F = calloc(FFT_SIZE/2,sizeof(double complex)); /*dft_ev*/
 	double complex *G = calloc(FFT_SIZE/2,sizeof(double complex)); /*dft_od*/
-	double complex *X = calloc(FFT_SIZE  ,sizeof(double complex)); /*dft*/
-	if( (F == NULL) || (G == NULL) || (X == NULL) ){
+	if( (F == NULL) || (G == NULL) ){
 		fprintf(stderr, "calloc() failed in dft()\n");
 		return MALLOC_FAILS;
 	}
@@ -66,17 +65,13 @@ int dft(int *x_even, int *x_odd, double *Y)
 		}	
 		G[k] = W_N[k]*G[k];
 	}
-	for(k = 0; k < FFT_SIZE/2; k++){
-		X[k] = F[k] + G[k];
-		Y[k] = cabs(X[k]);
-	}
-	for(k = FFT_SIZE/2, n = 0; k < FFT_SIZE; k++, n++){
-		X[k] = F[n] - G[n];
-		Y[k] = cabs(X[k]);
-	}
+	for(k = 0; k < FFT_SIZE/2; k++)
+		Y[k] = cabs(F[k] + G[k]);
+	for(k = FFT_SIZE/2, n = 0; k < FFT_SIZE; k++, n++)
+		Y[k] = cabs(F[k] - G[k]);
+	
 	free(F);
 	free(G);
-	free(X);
 	return 0;
 }
 
