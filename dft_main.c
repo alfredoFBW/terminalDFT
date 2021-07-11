@@ -30,7 +30,7 @@
 
 #define OPEN_CLOSE_FAILED -1
 #define DFT_FAILED -2
-#define EXEC_FAILED -3
+#define EXEC_FAILED 3
 #define SIGNAL_FAILED -4
 #define RM_FAILED -5
 
@@ -62,6 +62,7 @@ int main(int argc, char *argv[])
 	int audio_odd[FFT_SIZE/2];
 	int audio[FFT_SIZE];
 	int ret = 0,k = 0;
+	int child_status;
 	pid_t pid_record;
 	struct sigaction sa_int, sa_term;
 	long int *audio_rounded = malloc(FFT_SIZE*sizeof(long int));
@@ -94,9 +95,10 @@ int main(int argc, char *argv[])
 		}	
 		else{		     		/* Parent */
 			wait(&ret);
-			if(ret == -1){
+			child_status = WEXITSTATUS(ret);
+			if(child_status == (0377 & EXEC_FAILED)){ /* see man 3 exit */
 				fprintf(stderr, "child error\n");
-				return EXEC_FAILED;
+				return -EXEC_FAILED;
 			}
 			/* Child closes it when he finishes recording */
 			freopen(AUDIOFILE_PATH, "r", file_audio);
