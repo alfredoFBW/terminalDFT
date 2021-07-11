@@ -75,11 +75,11 @@ int main(int argc, char *argv[])
 	sigemptyset(&sa_int.sa_mask);  sigemptyset(&sa_term.sa_mask);
 	sa_term.sa_flags = 0;	       sa_term.sa_flags = 0;
 	if((ret = sigaction(SIGINT, &sa_int, 0)) == -1){
-		perror("sigaction failed(): ");
+		perror("sigaction failed() ");
 		return SIGNAL_FAILED;
 	}
 	if((ret = sigaction(SIGTERM, &sa_term, 0)) == -1){
-		perror("sigaction failed(): ");
+		perror("sigaction failed() ");
 		return SIGNAL_FAILED;
 	}
 
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
 		if(pid_record == 0){ 		/* Child */
 			ret = execv(AUDIOPROG_PATH, audio_command);
 			if(ret == -1){
-				perror("exec() error: ");
+				perror("exec() error ");
 				exit(EXEC_FAILED);	/* Exit child on error */
 			}
 		}	
@@ -117,12 +117,12 @@ int main(int argc, char *argv[])
 	}
 	clean_board();
 	if((ret = fclose(file_audio)) != 0){
-		perror("close() error: ");
+		perror("close() error ");
 		return OPEN_CLOSE_FAILED;
 	}	
 	/* Remove audio file */
 	if((ret = remove(AUDIOFILE_PATH)) == -1){
-		perror("remove() file error: ");
+		perror("remove() file error ");
 		return RM_FAILED;
 	}
 	free(audio_rounded);
