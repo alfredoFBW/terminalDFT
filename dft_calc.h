@@ -24,24 +24,22 @@
 #include <stdlib.h>		/* malloc, free */
 #include <stdio.h>		/* fprintf */
 
-#define FFT_SIZE 1024
+#define FFT_SIZE 1024 
 #define PI 3.14159
+
 /* 
  * Complex vector and complex matrix used
  * to compute the DFT using the base 2 
- * decimation algorithm (The simplest one
- * was enough )
+ * decimation algorithm (RADIX 4)
  */
-extern double complex W_N[FFT_SIZE/2];
-extern double complex W_N2[FFT_SIZE/2][FFT_SIZE/2];
+extern double complex W_N2[FFT_SIZE/4];
+extern double complex W_N4[FFT_SIZE/4][FFT_SIZE/4];
 
-/* Initializes W_N and W_N2 */ 
+
+/* Initializes W_N2 and W_N4 */ 
 void init_W();
 
-/* Takes signal[n == even] and signal[n == odd] */
-void take_evenodd(int *signal, int *x_even, int *x_odd);
-
 /* Returns DFT in Y */
-int dft(int *x_even, int *x_odd, double *Y);
+void dft(int *x_signal, double *Y);
 
 #endif /* DFT_CALC_H_ */
