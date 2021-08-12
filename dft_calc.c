@@ -20,58 +20,44 @@
 
 #include "dft_calc.h"
 
-#define MALLOC_FAILS -2
-
-double complex W_N[FFT_SIZE/2];
-double complex W_N2[FFT_SIZE/2][FFT_SIZE/2];
+double complex W_N2[FFT_SIZE/4];
+double complex W_N4[FFT_SIZE/4][FFT_SIZE/4];
 
 /* Initializes W_N and W_N2 */ 
 void init_W()
 {
 	int k, n;
-	for(k = 0; k < FFT_SIZE/2; k++){
-		for(n = 0; n < FFT_SIZE/2; n++){
-			W_N2[k][n] = cexp(-I*2*PI*k*n/(FFT_SIZE/2));	
+	for(k = 0; k < FFT_SIZE/4; k++){
+		for(n = 0; n < FFT_SIZE/4; n++){
+			W_N4[k][n] = cexp(-I*2*PI*k*n/(FFT_SIZE/4));	
 		}
-		W_N[k] = cexp(-I*2*PI*k/FFT_SIZE);
-	}
-}
-
-/* Takes signal[n == even] and signal[n == odd] */
-void take_evenodd(int *signal, int *x_even, int *x_odd)
-{	
-	int n = 0;
-	while(n < FFT_SIZE/2){
-		x_even[n] = signal[2*n];
-		x_odd[n]  = signal[2*n + 1];
-		n++;
+		W_N2[k] = cexp(-I*2*PI*k/(FFT_SIZE/2));
 	}
 }
 
 /* Returns DFT in Y */
-int dft(int *x_even, int *x_odd, double *Y)
+void dft(int *x_signal,  double *Y)
 {
-	double complex *F = calloc(FFT_SIZE/2,sizeof(double complex)); /*dft_ev*/
-	double complex *G = calloc(FFT_SIZE/2,sizeof(double complex)); /*dft_od*/
-	if( (F == NULL) || (G == NULL) ){
-		fprintf(stderr, "calloc() failed in dft()\n");
-		return MALLOC_FAILS;
-	}
+	double complex F_p, F_pp;
+	double complex G_p, G_pp;
+	double complex exp_aux; 
 	int k, n;
-	for(k = 0; k < FFT_SIZE/2; k++){
-		for(n = 0; n < FFT_SIZE/2; n++){
-			F[k] += x_even[n]*W_N2[k][n];
-			G[k] += x_odd[n]*W_N2[k][n];
+	for(k = 0; k < FFT_SIZE/4; k++){
+		F_p = F_pp = G_p  = G_pp = 0;
+		for(n = 0; n < FFT_SIZE/4; n++){
+			F_p  += x_signal[4*n]*W_N4[k][n];
+			F_pp += x_signal[4*n + 2]*W_N4[k][n];
+			G_p  += x_signal[4*n + 1]*W_N4[k][n];
+			G_pp += x_signal[4*n + 3]*W_N4[k][n];
 		}	
-		G[k] = W_N[k]*G[k];
+		F_pp    = F_pp*W_N2[k];
+		G_pp    = G_pp*W_N2[k];
+		exp_aux = cexp(-I*2*PI*k/FFT_SIZE);
+
+		Y[k] 		    = cabs(F_p + F_pp + exp_aux*(G_p + G_pp));
+		Y[k + FFT_SIZE/4]   = cabs(F_p - F_pp + exp_aux*(G_p - G_pp));
+		Y[k + 2*FFT_SIZE/4] = cabs(F_p + F_pp - exp_aux*(G_p + G_pp));
+		Y[k + 3*FFT_SIZE/4] = cabs(F_p - F_pp - exp_aux*(G_p - G_pp));
 	}
-	for(k = 0; k < FFT_SIZE/2; k++)
-		Y[k] = cabs(F[k] + G[k]);
-	for(k = FFT_SIZE/2, n = 0; k < FFT_SIZE; k++, n++)
-		Y[k] = cabs(F[k] - G[k]);
-	
-	free(F);
-	free(G);
-	return 0;
 }
 
