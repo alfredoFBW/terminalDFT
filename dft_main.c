@@ -58,8 +58,6 @@ int main(int argc, char *argv[])
 {
 	FILE *file_audio;
 	double dft_audio[FFT_SIZE];
-	int audio_even[FFT_SIZE/2];
-	int audio_odd[FFT_SIZE/2];
 	int audio[FFT_SIZE];
 	int ret = 0,k = 0;
 	pid_t pid_record;
