@@ -28,12 +28,11 @@
 #include "dft_calc.h"
 #include "dft_show.h"
 
-#define OPEN_CLOSE_FAILED -1
-#define DFT_FAILED -2
+#define OPEN_CLOSE_FAILED 1
+#define DFT_FAILED 2
 #define EXEC_FAILED 3
-#define CHILD_FAILED 4
-#define SIGNAL_FAILED -5
-#define RM_FAILED -6
+#define SIGNAL_FAILED 4
+#define RM_FAILED 5
 
 #define AUDIOFILE_PATH "./audiofile"
 #define AUDIOPROG_PATH "/usr/bin/arecord"
@@ -63,7 +62,6 @@ int main(int argc, char *argv[])
 	int audio_odd[FFT_SIZE/2];
 	int audio[FFT_SIZE];
 	int ret = 0,k = 0;
-	int child_status;
 	pid_t pid_record;
 	struct sigaction sa_int, sa_term;
 	long int *audio_rounded = malloc(FFT_SIZE*sizeof(long int));
@@ -96,31 +94,17 @@ int main(int argc, char *argv[])
 		}	
 		else{		     		/* Parent */
 			wait(&ret);
-
-			if(WIFEXITED(ret) != 0)
-				child_status = WEXITSTATUS(ret); /* Get child ret val*/
-			else
-				child_status = -1;
-
-			if(child_status == (0377 & EXEC_FAILED)){ /*man 3 exit*/
-				fprintf(stderr, "Check your rec program\n");
-				return -EXEC_FAILED;
+			if(ret == -1){
+				fprintf(stderr, "child error\n");
+				return EXEC_FAILED;
 			}
-			else if(child_status == -1){
-				fprintf(stderr, "child failed \n");
-				return -CHILD_FAILED;
-			}
-
 			/* Child closes it when he finishes recording */
 			freopen(AUDIOFILE_PATH, "r", file_audio);
 			for(k = 0; k < FFT_SIZE; k++)
 				fread(audio + k, sizeof(u_int8_t), 1, file_audio);
 		}
-		take_evenodd(audio, audio_even, audio_odd);	
-		if((ret = dft(audio_even, audio_odd, dft_audio)) != 0){
-			fprintf(stderr, "malloc error dft()");
-			return DFT_FAILED;
-		}
+		//take_evenodd(audio, audio_even, audio_odd);	
+		dft(audio, dft_audio);
 		clean_board();
 		array_norm_round(dft_audio, audio_rounded);
 		prepare_board(audio_rounded);
